@@ -1,0 +1,29 @@
+coverage:
+  precision: 2
+  round: down
+  range: 35..85
+  status:
+    project:
+      common:
+        threshold: 2.0%
+        paths:
+          - "{{cookiecutter.package_name}}/common/.*"
+          - "!{{cookiecutter.package_name}}/common/**/test/.*"
+      job:
+        threshold: 2.0%
+        paths:
+          - "{{cookiecutter.package_name}}/job/.*"
+          - "!{{cookiecutter.package_name}}/job/**/test/.*"
+      cli:
+        threshold: 2.0%
+        paths:
+          - "{{cookiecutter.package_name}}/cli.py"
+      pyspark_entrypoint:
+        threshold: 2.0%
+        paths:
+          - "{{cookiecutter.package_name}}/pyspark_entrypoint.py"
+      tests:
+        target: 100.0%
+        paths:
+          - "{{cookiecutter.package_name}}/test/.*"
+          - "{{cookiecutter.package_name}}/**/test/.*"

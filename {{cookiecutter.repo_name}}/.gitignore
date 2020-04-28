@@ -1,0 +1,50 @@
+# Secrets
+secret/
+*.secret
+
+# Mac OS
+*.DS_Store
+
+# Distribution / packaging
+build/
+dist/
+lib/
+libs/
+lib64/
+sdist/
+var/
+wheels/
+*.egg-info/
+*.egg
+eggs/
+.eggs/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*$py.class
+
+# C extensions
+*.so
+*~
+
+# Unit test / coverage reports
+htmlcov/
+.coverage*
+coverage.*
+.cache
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# virtualenv .venv
+.venv/
+
+# PyCharm
+.idea/
+
+# MyPy https://mypy.readthedocs.io/en/latest/introduction.html
+.mypy_cache/
+
+# sphinx build folder
+_build/
