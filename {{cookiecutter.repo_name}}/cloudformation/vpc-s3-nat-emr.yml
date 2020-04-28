@@ -190,8 +190,9 @@ Resources:
 
   S3Bucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
     Properties:
-
+      BucketName: !Ref S3BucketName
 
   S3VpcEndpoint:
     Type: AWS::EC2::VPCEndpoint
