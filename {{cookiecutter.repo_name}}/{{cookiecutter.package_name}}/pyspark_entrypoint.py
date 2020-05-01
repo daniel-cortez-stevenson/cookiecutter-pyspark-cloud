@@ -35,6 +35,7 @@ try:
 except ImportError:
     msg = 'Install pyspark to your Python environment to test locally.'
     logger.error(msg)
+    raise
 
 
 def main():
@@ -45,7 +46,7 @@ def main():
                         help='Extra keyword-arguments to send to main() of the job module (ex: `--job-kwargs bat=baz foo=bar`')
     args = parser.parse_args()
 
-    logging.info('Called with arguments:', args)
+    logging.info(f'Called {__file__}:main with arguments:', args)
 
     os.environ.update({
         'PYSPARK_JOB_ARGS': ' '.join(args.job_kwargs) if args.job_kwargs else ''
@@ -57,7 +58,7 @@ def main():
         for kwarg in args.job_kwargs:
             kw, arg = kwarg.split('=', 1)
             job_kwargs[kw] = arg
-    logger.info(f'event: submit job "{args.job_name}" with kwargs: {job_kwargs}')
+    logger.info(f'Submitted job "{args.job_name}" with kwargs: {job_kwargs}')
 
     try:
         job_module = importlib.import_module(f'{{cookiecutter.package_name}}.job.{args.job_name}')
@@ -69,7 +70,7 @@ def main():
 
     start = datetime.datetime.now()
     try:
-        job_module.main(**job_kwargs)
+        job_module.main(spark, **job_kwargs)
     except Exception:
         logger.error('______________ Abrupt Exit ______________')
         raise
