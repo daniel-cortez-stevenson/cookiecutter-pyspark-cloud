@@ -17,7 +17,7 @@ limitations under the License.
 import boto3
 
 
-def list_s3_keys(bucket, prefix, suffix, pagination_conf: None):
+def list_s3_keys(bucket, prefix, suffix, pagination_conf: dict = None):
     """List AWS S3 keys efficiently so PySpark does not have to do an expensive
     recursive list operation.
 
