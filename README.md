@@ -1,27 +1,61 @@
 # cookiecutter-pyspark-aws-emr
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 Get started on AWS EMR with this [cookiecutter](https://cookiecutter.readthedocs.io/en/1.7.2/usage.html) template!
 
 ## Quickstart
 
-1. Create a Python environment with cookiecutter installed:
-
 ```
-conda create -n cookiecutter -y "python=3.7" cookiecutter
-conda activate cookiecutter
+pip install -U "cookiecutter>=1.7"
+cookiecutter https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr.git
+cd *your-repo_name*
+make install
 ```
 
-2. Git clone this repo, and make your changes:
+## Usage
+
+1. Clone this repo:
 
 ```
 git clone https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr.git
-# make any changes you wish to locally
+cd cookiecutter-pyspark-aws-emr
 ```
 
-3. Create your repo from this template:
+2. Create a Python environment with dependencies installed:
 
 ```
+conda create -n cookiecutter -y "python=3.7"
+pip install -r requirements.txt
+
+conda activate cookiecutter
+```
+
+3. Make any changes to the template, as you wish.
+
+4. Create your project from the template:
+
+```
+cd ..
 cookiecutter ./cookiecutter-pyspark-aws-emr
+```
+
+5. Initialize git:
+
+```
+cd *your-repo_name*
+git init
+git add .
+git commit -m "Initial Commit"
+```
+
+6. Create a new Conda environment for your new project & install project development dependenices:
+
+```
+conda deactivate
+conda create -n *your-repo_name* -y "python=3.6"
+
+make install-dev
 ```
 
 ## Features
