@@ -1,5 +1,10 @@
 {
-    "repo_name": "pyspark-aws-emr",
-    "package_name": "pyspark_aws_emr",
-    "s3_bucket": "abucketname123abcxyz"
+    "project_name": "pyspark-aws-emr",
+    "repo_name": "{{ cookiecutter.project_name | slugify }}",
+    "package_name": "{{ cookiecutter.repo_name | slugify(separator='_') }}",
+    "s3_bucket": "{{ cookiecutter.repo_name | slugify }}-{{ random_ascii_string(8) | lower }}",
+    "_extensions": [
+        "cookiecutter.extensions.RandomStringExtension",
+        "cookiecutter.extensions.SlugifyExtension"
+    ]
 }

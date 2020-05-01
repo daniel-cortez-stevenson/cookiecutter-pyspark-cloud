@@ -48,6 +48,8 @@ cookiecutter ./cookiecutter-pyspark-aws-emr
 - Extend the PySpark API: An example of extending the PySpark SQL `DataFrame` class, which allows chaining custom
  transformations with dot `.` notation
  
+- Development Framework: Use [bump2version](https://github.com/c4urself/bump2version) to version your project.
+ 
 ## Contribute
 
 Contributions are welcome! 
