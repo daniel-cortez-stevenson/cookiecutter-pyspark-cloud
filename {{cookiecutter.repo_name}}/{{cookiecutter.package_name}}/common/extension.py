@@ -18,12 +18,12 @@ from pyspark.sql import DataFrame
 
 
 def transform(self, f, **kwargs):
-    """Transform is widely-used throughout the project to
-    'chain' `pyspark.sql.DataFrame` methods using dot-
-    notation.
+    """This method can be used to 'chain' `pyspark.sql.DataFrame` methods using
+    dot-notation.
 
-    That being said, this extension could be applied to
-    other classes in interesting ways..."""
+    That being said, this extension could be applied to other classes in
+    interesting ways...
+    """
     return f(self, **kwargs)
 
 
