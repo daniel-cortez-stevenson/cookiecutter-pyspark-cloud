@@ -1,43 +1,75 @@
 # {{cookiecutter.repo_name}}
 
-A PySpark on EMR stater kit - from infrastructure to spark-submit call.
+A 'starter-kit' for PySpark in the cloud :cloud: - from infrastructure to spark-submit call.
 
-## How to use this repo
-
-### Install Python libs
+## Quickstart
 
 ```
 conda create -n {{cookiecutter.repo_name}} -y "python=3.6"
-source activate {{cookiecutter.repo_name}}
+conda activate {{cookiecutter.repo_name}}
+
+make install
+
+{{cookiecutter.package_name}}
+```
+
+## Usage
+
+### Install a Python 3.6 Environment
+
+```
+conda create -n {{cookiecutter.repo_name}} -y "python=3.6"
+conda activate {{cookiecutter.repo_name}}
+```
+
+### Install {{cookiecutter.package_name}} for Development
+
+```
 make install-dev
 ```
 
-### Create your S3 bucket
+### AWS
+
+#### Store Data and Assets in S3
 
 ```
 aws s3 mb s3://{{cookiecutter.s3_bucket}}
 ```
 
-### Deploy the AWS Cloud :cloud: Infrastrucutre as Code with AWS Cloudformation
+#### Deploy Infrastrucutre as Code with AWS Cloudformation
 
-Distribute your EMR bootstrap / step scripts and Python package via S3:
+Distribute code:
+
+*make cluster bootstrap & EMR Step API bash scripts, PySpark code available via S3*
 
 ```
 make s3dist
 ```
 
+Make Keys:
+
+*create the necessary AWS EC2 Key Pairs for the bastion server and master node via the AWS Console*
+
+Example Key Pair Names:
+
+- test-{{cookiecutter.repo_name}}-bastion
+
+- test-{{cookiecutter.repo_name}}-emr
+
+Deploy infrastructure:
+
 ```
 aws cloudformation create-stack \
-    --stack-name MyEmrTestXyz123 \
+    --stack-name "{{cookiecutter.project_name | slugify(separator='')}}-{{random_ascii_string(6) | lower}}" \
     --template-body file://./cloudformation/emr-template.yaml \
-    --tags Key=Environment,Value=Test Key=Project,Value=MyPySparkProject \
+    --tags Key=Environment,Value=Test Key=Project,Value={{cookiecutter.project_name | slugify(separator='')}} \
     --parameters \
-        ParameterKey=BastionKeyName,ParameterValue=test-pyspark-aws-emr-bastion \
-        ParameterKey=EmrKeyName,ParameterValue=test-pyspark-aws-emr-emr \
+        ParameterKey=BastionKeyName,ParameterValue=test-{{cookiecutter.repo_name}}-bastion \
+        ParameterKey=EmrKeyName,ParameterValue=test-{{cookiecutter.repo_name}}-emr \
     # for debugging the stack use `--disable-rollback`
 ```
 
-### Submit PySpark code as AWS EMR Steps using the `{{cookiecutter.package_name}}` CLI
+#### Submit PySpark code as AWS EMR Steps using the `{{cookiecutter.package_name}}` CLI
 
 Get help:
 

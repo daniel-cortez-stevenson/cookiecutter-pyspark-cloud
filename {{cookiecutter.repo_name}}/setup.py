@@ -19,7 +19,7 @@ from setuptools import setup
 setup(
     name='{{cookiecutter.package_name}}',
     version='0.0.1',
-    description='A PySpark ETL on AWS EMR cookiecutter project generated from cookiecutter-pyspark-aws-emr',
+    description='A PySpark Cloud project, generated from cookiecutter-pyspark-cloud.',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: Apache Software License',

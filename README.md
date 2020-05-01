@@ -1,14 +1,15 @@
-# cookiecutter-pyspark-aws-emr
+# cookiecutter-pyspark-cloud :cloud:
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Get started on AWS EMR with this [cookiecutter](https://cookiecutter.readthedocs.io/en/1.7.2/usage.html) template!
+Run PySpark code in the 'cloud' with Amazon Web Services (AWS) Elastic MapReduce (EMR) service in a few simple steps with
+ this [cookiecutter](https://cookiecutter.readthedocs.io/en/1.7.2/usage.html) project template!
 
 ## Quickstart
 
 ```
 pip install -U "cookiecutter>=1.7"
-cookiecutter https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr.git
+cookiecutter https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud.git
 cd *your-repo_name*
 make install
 ```
@@ -18,8 +19,8 @@ make install
 1. Clone this repo:
 
 ```
-git clone https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr.git
-cd cookiecutter-pyspark-aws-emr
+git clone https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud.git
+cd cookiecutter-pyspark-cloud
 ```
 
 2. Create a Python environment with dependencies installed:
@@ -37,7 +38,7 @@ conda activate cookiecutter
 
 ```
 cd ..
-cookiecutter ./cookiecutter-pyspark-aws-emr
+cookiecutter ./cookiecutter-pyspark-cloud
 ```
 
 5. Initialize git:
@@ -88,6 +89,6 @@ make install-dev
 
 Contributions are welcome! 
 
-- [Submit an Issue](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr/issues/new)
+- [Submit an Issue](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud/issues/new)
 
-- [Submit a Pull Request](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr/compare)
+- [Submit a Pull Request](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud/compare)
