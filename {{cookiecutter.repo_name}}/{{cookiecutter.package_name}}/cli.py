@@ -37,9 +37,10 @@ def main():
 @click.group(invoke_without_command=True, context_settings=CONTEXT_SETTINGS)
 @click.pass_context
 def cli(ctx):
-    f = pyfiglet.Figlet(font='slant')
-    click.echo(f.renderText('{{cookiecutter.package_name}}'))
-    click.echo(f'v{__version__}')
+    if not ctx.invoked_subcommand:
+        f = pyfiglet.Figlet(font='slant')
+        click.echo(f.renderText('{{cookiecutter.package_name}}'))
+        click.echo(f'v{__version__}')
 
 
 @cli.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, **CONTEXT_SETTINGS),
@@ -50,7 +51,7 @@ def cli(ctx):
 @click.option('-p', '--prefix', required=True, help='S3 prefix that contains the egg distribution.')
 @click.option('-P', '--packages', required=False, help='Spark package dependencies of the job.')
 @click.option('-A', '--action-on-failure', default='TERMINATE_JOB_FLOW', type=click.Choice(ACTIONS_ON_FAILRE),
-              help='Keyword specifying EMR behavior if the Step fails.'
+              help='Keyword specifying EMR behavior if the Step fails.')
 @click.option('-j', '--job-name', required=True, help='The name of the job module to run.')
 @click.argument('job-kwargs', nargs=-1)
 @click.pass_context
@@ -95,6 +96,24 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
         ],
     )
     click.echo(response)
+
+
+@cli.group('list', context_settings=CONTEXT_SETTINGS, short_help='Get deployment info')
+@click.pass_context
+def list_(ctx):
+    pass
+
+
+@list_.command('emr', context_settings=CONTEXT_SETTINGS, short_help='List available AWS EMR cluster IDs')
+@click.pass_context
+def list_emr(ctx):
+    emr = boto3.client('emr')
+    clusters = emr.list_clusters(
+        ClusterStates=[
+            'STARTING', 'BOOTSTRAPPING', 'RUNNING', 'WAITING',
+        ],
+    )['Clusters']
+    click.echo(clusters)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 {
     "repo_name": "pyspark-aws-emr",
-    "package_name": "bigetl",
-    "s3_bucket": "a unique name for your S3 bucket"
+    "package_name": "pyspark_aws_emr",
+    "s3_bucket": "abucketname123abcxyz"
 }

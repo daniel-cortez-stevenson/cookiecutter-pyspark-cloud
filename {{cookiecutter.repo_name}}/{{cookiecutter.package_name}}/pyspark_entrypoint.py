@@ -1,4 +1,4 @@
-"""Entrypoint for spark-submit. Loaded by EMR from S3 on step execution
+"""Entrypoint for spark-submit. Loaded by EMR from S3 on step execution.
 
 Copyright 2020 Daniel Cortez Stevenson
 

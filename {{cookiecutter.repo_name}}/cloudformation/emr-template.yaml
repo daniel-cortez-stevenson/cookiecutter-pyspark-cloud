@@ -1,0 +1,435 @@
+# Copyright 2020 Daniel Cortez Stevenson
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >-
+  A sensible CloudFormation Template for AWS EMR.
+
+Parameters:
+
+  AvailabilityZone:
+    Description: >-
+      The AWS Availability Zone in which your public & private subnets will be
+      launched.
+    Type: String
+    Default: eu-central-1a
+    ConstraintDescription: >-
+      Must be a valid AWS Availability Zone in AWS Region eu-central-1 or
+      us-east-1.
+
+  S3BucketName:
+    Description: >-
+      The name of the AWS S3 bucket, which will store logs, Jupyter notebooks,
+      Python code assets, and bootstrap / startup step bash scripts.
+    Type: String
+    Default: {{cookiecutter.s3_bucket}}
+    ConstraintDescription: >-
+      Must be a valid S3 bucket name, which is globally unique.
+
+  BastionKeyName:
+    Description: >-
+      Name of the EC2 KeyPair, which enables SSH access to the bastion server.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: >-
+      Must be the name of an existing EC2 KeyPair.
+
+  AccessLocation:
+    Description: >-
+      CIDR range from which SSH access to the bastion server is allowed. Default
+      is anywhere.
+    Type: String
+    Default: '0.0.0.0/0'
+    ConstraintDescription: >-
+      Must be a valid CIDR range.
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+
+  Ec2Market:
+    Description: >-
+      Use AWS Spot market or the On Demand market.
+    Type: String
+    Default: SPOT
+    AllowedValues:
+      - SPOT
+      - ON_DEMAND
+
+  JupyterHubUsers:
+    Description: >-
+      The usernames for JupyterHub. Data from JupyterHub will be stored in
+      s3://${S3BucketName}/jupyter/${User}/*
+    Type: CommaDelimitedList
+    Default: 'user1,user2'
+    ConstraintDescription: >-
+      Must be exactly 2 users, separated by six commas with 0 spaces.
+
+  EmrKeyName:
+    Description: >-
+      Name of the EC2 KeyPair, which enables SSH access to the EMR master node.
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: >-
+      Must be the name of an existing EC2 KeyPair.
+
+Mappings:
+  SubnetConfig:
+    VPC:
+      CIDR: 10.192.0.0/16
+    Public:
+      CIDR: 10.192.10.0/24
+    Private:
+      CIDR: 10.192.20.0/24
+
+  AWSRegionArch2AMI:
+    eu-central-1:
+      HVM64: ami-054e21e355db24124
+    us-east-1:
+      HVM64: ami-0fba9b33b5304d8b4
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - VPC
+        - CIDR
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref AvailabilityZone
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - Public
+        - CIDR
+      MapPublicIpOnLaunch: true
+
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref AvailabilityZone
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - Private
+        - CIDR
+      MapPublicIpOnLaunch: false
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      RouteTableId: !Ref PrivateRouteTable
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    DependsOn: NatGateway
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateNetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+
+  PrivateNetworkAclEntryIn:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PrivateNetworkAcl
+      RuleNumber: 99
+      Protocol: -1
+      RuleAction: allow
+      Egress: false
+      CidrBlock: 0.0.0.0/0
+
+  PrivateNetworkAclEntryOut:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref PrivateNetworkAcl
+      RuleNumber: 99
+      Protocol: -1
+      RuleAction: allow
+      Egress: true
+      CidrBlock: 0.0.0.0/0
+
+  PrivateSubnetNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      NetworkAclId: !Ref PrivateNetworkAcl
+
+  NatGatewayElasticIP:
+    Type: AWS::EC2::EIP
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayElasticIP.AllocationId
+      SubnetId: !Ref PublicSubnet
+
+  S3VpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcId: !Ref VPC
+      VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref PrivateRouteTable
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 's3:*'
+            Resource: '*'
+
+  BastionElasticIp:
+    Type: AWS::EC2::EIP
+
+  BastionElasticIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref BastionInstance
+      EIP: !Ref BastionElasticIp
+
+  BastionInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      InstanceType: t3.nano
+      KeyName: !Ref BastionKeyName
+      SubnetId: !Ref PublicSubnet
+      SecurityGroupIds:
+        - !Ref BastionSecurityGroup
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref AWS::Region
+        - HVM64
+      Monitoring: true
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 8
+
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allows all ingress from AccessLocation
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: !Ref AccessLocation
+
+  ReceiveFromBastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allows ingress from BastionSecurityGroup
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          SourceSecurityGroupId: !Ref BastionSecurityGroup
+
+  EmrCluster:
+    Type: AWS::EMR::Cluster
+    Properties:
+      Name: !Ref 'AWS::StackName'
+      ReleaseLabel: emr-5.29.0
+      Applications:
+        - Name: Hadoop
+        - Name: Ganglia
+        - Name: Spark
+        - Name: Hive
+        - Name: JupyterHub
+      Configurations:
+        - Classification: jupyter-s3-conf
+          ConfigurationProperties:
+            s3.persistence.enabled: true
+            s3.persistence.bucket: !Ref S3BucketName
+        - Classification: spark
+          ConfigurationProperties:
+            maximizeResourceAllocation: true
+        - Classification: spark-defaults
+          ConfigurationProperties:
+            spark.dynamicAllocation.enabled: true
+            spark.driver.maxResultSize: 0
+            spark.sql.parquet.fs.optimized.committer.optimization-enabled: true
+            spark.sql.hive.convertMetastoreParquet: true
+            spark.sql.catalogImplementation: hive
+            spark.serializer: org.apache.spark.serializer.KryoSerializer
+            spark.kryo.registrationRequired: false
+            spark.rdd.compress: true
+            spark.shuffle.compress: true
+            spark.shuffle.spill.compress: true
+            spark.storage.level: MEMORY_AND_DISK_SER
+            spark.memory.fraction: 0.6
+            spark.executor.extraJavaOptions: "-XX:+UseG1GC -XX:+UnlockDiagnosticVMOptions -XX:+G1SummarizeConcMark -XX:InitiatingHeapOccupancyPercent=35 -XX:-ResizePLAB -XX:+AlwaysPreTouch -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintAdaptiveSizePolicy -XX:+PrintFlagsFinal -XX:+PrintReferenceGC -XX:OnOutOfMemoryError='kill -9 %p'"
+            spark.driver.extraJavaOptions: "-XX:+UseG1GC -XX:+UnlockDiagnosticVMOptions -XX:+G1SummarizeConcMark -XX:InitiatingHeapOccupancyPercent=35 -XX:-ResizePLAB -XX:+AlwaysPreTouch -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintAdaptiveSizePolicy -XX:+PrintFlagsFinal -XX:+PrintReferenceGC -XX:OnOutOfMemoryError='kill -9 %p'"
+            spark.speculation: false
+        - Classification: spark-env
+          Configurations:
+            - Classification: export
+              ConfigurationProperties:
+                PYSPARK_PYTHON: /usr/bin/python3
+        - Classification: yarn-site
+          ConfigurationProperties:
+            yarn.nodemanager.vmem-check-enabled: false
+            yarn.nodemanager.pmem-check-enabled: false
+            yarn.scheduler.capacity.resource-calculator: 'org.apache.hadoop.yarn.util.resource.DominantResourceCalculator'
+      BootstrapActions:
+        - Name: InstallSystemUtils
+          ScriptBootstrapAction:
+            Path: !Sub 's3://${S3BucketName}/dist/emr/scripts/bootstrap/bootstrap-sysutils.sh'
+        - Name: InstallPythonLibs
+          ScriptBootstrapAction:
+            Path: !Sub 's3://${S3BucketName}/dist/emr/scripts/bootstrap/bootstrap-pylibs.sh'
+      Steps:
+        - Name: ConfigureJupyterConda
+          ActionOnFailure: CONTINUE
+          HadoopJarStep:
+            Jar: !Sub 's3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar'
+            Args:
+              - !Sub 's3://${S3BucketName}/dist/emr/scripts/step/stepconfigure-conda+jupyterhub.sh'
+        - Name: ConfigureJupyterHubUsers
+          ActionOnFailure: CONTINUE
+          HadoopJarStep:
+            Jar: !Sub 's3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar'
+            Args:
+              - !Sub 's3://${S3BucketName}/dist/emr/scripts/step/configure-jupyter-users.sh'
+              - !Select [ 0, !Ref JupyterHubUsers ]
+              - !Select [ 1, !Ref JupyterHubUsers ]
+      LogUri: !Sub 's3://${S3BucketName}/log/emr'
+      JobFlowRole: EMR_EC2_DefaultRole
+      ServiceRole: EMR_DefaultRole
+      AutoScalingRole: EMR_AutoScaling_DefaultRole
+      VisibleToAllUsers: true
+      Instances:
+        Ec2KeyName: !Ref EmrKeyName
+        Ec2SubnetId: !Ref PrivateSubnet
+        KeepJobFlowAliveWhenNoSteps: true
+        AdditionalMasterSecurityGroups:
+          - !Ref ReceiveFromBastionSecurityGroup
+        MasterInstanceGroup:
+          InstanceCount: 1
+          InstanceType: m5.2xlarge
+          EbsConfiguration:
+            EbsBlockDeviceConfigs:
+              - VolumeSpecification:
+                  SizeInGB: 64
+                  VolumeType: gp2
+                VolumesPerInstance: 1
+            EbsOptimized: True
+          Market: ON_DEMAND
+          Name: Master
+        CoreInstanceGroup:
+          InstanceCount: 4
+          InstanceType: m5.4xlarge
+          EbsConfiguration:
+            EbsBlockDeviceConfigs:
+              - VolumeSpecification:
+                  SizeInGB: 64
+                  VolumeType: gp2
+                VolumesPerInstance: 4
+            EbsOptimized: True
+          Market: !Ref Ec2Market
+          Name: Core
+
+Outputs:
+  VPCId:
+    Value: !Ref VPC
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC'
+
+  PublicSubnet:
+    Value: !Ref PublicSubnet
+    Export:
+      Name: !Sub '${AWS::StackName}-PublicSubnet'
+
+  PrivateSubnet:
+    Value: !Ref PrivateSubnet
+    Export:
+      Name: !Sub '${AWS::StackName}-PrivateSubnet'
+
+  BastionIp:
+    Value: !Ref BastionElasticIp
+    Export:
+      Name: !Sub '${AWS::StackName}-BastionIp'
+
+  BastionInstance:
+    Value: !Ref BastionInstance
+    Export:
+      Name: !Sub '${AWS::StackName}-BastionInstance'
+
+  BastionSg:
+    Value: !Ref BastionSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-BastionSg'
+
+  ReceiveFromBastionSg:
+    Value: !Ref ReceiveFromBastionSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-ReceiveFromBastionSg'
+
+  EmrClusterId:
+    Value: !Ref EmrCluster
+    Export:
+      Name: !Sub '${AWS::StackName}-EmrClusterId'
+
+  EmrMasterDnsName:
+    Value: !GetAtt EmrCluster.MasterPublicDNS
+    Export:
+      Name: !Sub '${AWS::StackName}-EmrMasterDnsName'
