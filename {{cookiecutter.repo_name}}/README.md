@@ -15,7 +15,7 @@ make install-dev
 ### Create your S3 bucket
 
 ```
-aws s3 mb s3://{{cookiecutter.package_name}}
+aws s3 mb s3://{{cookiecutter.s3_bucket}}
 ```
 
 ### Deploy the AWS Cloud :cloud: Infrastrucutre as Code with AWS Cloudformation
