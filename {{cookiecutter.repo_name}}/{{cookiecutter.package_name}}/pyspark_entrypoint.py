@@ -60,8 +60,8 @@ def main():
     logger.info(f'event: submit job "{args.job_name}" with kwargs: {job_kwargs}')
 
     try:
-        job_module = importlib.import_module(f'pyogo.job.{args.job_name}')
-        logger.info(f'Imported {args.job_name} sucessfully.')
+        job_module = importlib.import_module(f'{{cookiecutter.package_name}}.job.{args.job_name}')
+        logger.info(f'Imported {args.job_name} successfully.')
     except ImportError:
         logger.error('______________ Abrupt Exit ______________')
         logger.error(f'Failed to import {args.job_name}. Exiting.')
@@ -77,8 +77,8 @@ def main():
         end = datetime.datetime.now()
         duration = end - start
         execution_mins = round(duration.seconds / 60., 2)
-        logger.info(f'Execution of job {args.job_name} took {execution_mins} minutes')
-    logger.info(f'Finished running pyspark_entrypoint for job {args.job_name}')
+        logger.info(f'Execution of job {args.job_name} took {execution_mins} minutes.')
+    logger.info(f'Finished running {__file__} for job {args.job_name}.')
 
 
 if __name__ == '__main__':
