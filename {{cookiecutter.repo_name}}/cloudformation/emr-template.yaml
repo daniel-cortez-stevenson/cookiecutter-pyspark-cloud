@@ -82,6 +82,52 @@ Parameters:
     ConstraintDescription: >-
       Must be the name of an existing EC2 KeyPair.
 
+  MasterNodeInstanceType:
+    Description: >-
+      AWS EC2 Instance Type of the EMR Master node.
+    Type: String
+    Default: m5.2xlarge
+    ConstraintDescription: >-
+      Must be a valid AWS EMR EC2 Instance Type.
+
+  CoreNodeInstanceType:
+    Description: >-
+      AWS EC2 Instance Type of the EMR Core (Worker) nodes.
+    Type: String
+    Default: m5.xlarge
+    ConstraintDescription: >-
+      Must be a valid AWS EMR EC2 Instance Type.
+
+  CoreNodesCount:
+    Description: >-
+      The number of EMR Core (Worker) nodes in the EMR cluster.
+    Type: Number
+    Default: 2
+    MinValue: 1
+    MaxValue: 20
+    ConstraintDescription: >-
+      Must be a number between 1 and 20.
+
+  EbsVolumeSize:
+    Description: >-
+      The size (in GiB) of each EC2 EBS volume to attached to a node in the EMR cluster.
+    Type: Number
+    Default: 64
+    MinValue: 32
+    MaxValue: 512
+    ConstraintDescription: >-
+      Must be a number between 32 and 512.
+
+  EbsVolumesCount:
+    Description: >-
+      The number of EC2 EBS volumes to attach to each node in the EMR cluster.
+    Type: Number
+    Default: 4
+    MinValue: 1
+    MaxValue: 8
+    ConstraintDescription: >-
+      Must be a number between 1 and 8.
+
 Mappings:
   SubnetConfig:
     VPC:
@@ -365,25 +411,25 @@ Resources:
           - !Ref ReceiveFromBastionSecurityGroup
         MasterInstanceGroup:
           InstanceCount: 1
-          InstanceType: m5.2xlarge
+          InstanceType: !Ref MasterNodeInstanceType
           EbsConfiguration:
             EbsBlockDeviceConfigs:
               - VolumeSpecification:
-                  SizeInGB: 64
+                  SizeInGB: !Ref EbsVolumeSize
                   VolumeType: gp2
-                VolumesPerInstance: 1
+                VolumesPerInstance: !Ref EbsVolumesCount
             EbsOptimized: True
           Market: ON_DEMAND
           Name: Master
         CoreInstanceGroup:
-          InstanceCount: 4
-          InstanceType: m5.4xlarge
+          InstanceCount: !Ref CoreNodesCount
+          InstanceType: !Ref CoreNodeInstanceType
           EbsConfiguration:
             EbsBlockDeviceConfigs:
               - VolumeSpecification:
-                  SizeInGB: 64
+                  SizeInGB: !Ref EbsVolumeSize
                   VolumeType: gp2
-                VolumesPerInstance: 4
+                VolumesPerInstance: !Ref EbsVolumesCount
             EbsOptimized: True
           Market: !Ref Ec2Market
           Name: Core
