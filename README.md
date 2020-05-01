@@ -23,3 +23,35 @@ git clone https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-em
 ```
 cookiecutter ./cookiecutter-pyspark-aws-emr
 ```
+
+## Features
+
+- AWS Clouformation Template for EMR: Simple Spark cluster deployment with infrastructure as code
+
+    - [JupyterHub](https://jupyterhub.readthedocs.io/en/stable/) is installed to the EMR Master node for development.
+
+- Simplify Workflows with Make: A Makefile with commands for installation and deployment
+
+    - Installation for regular-use and development
+    - Package and deploy your code to AWS S3
+
+- A Command-Line Interface for Running PySpark 'Jobs': For Production runs via EMR Step API.
+
+    - Uses the concept of 'jobs', which run PySpark scripts as a Python function via a common entrypoint.
+
+- Reduce Duplication in Your PySpark Code: Package code shared between 'jobs' in a Python module of your package
+ called `common`
+
+- Wrap Scala with Python: An example of wrapping Scala Spark API code with PySpark API code is provided with
+ `SnowballStemmer`
+ 
+- Extend the PySpark API: An example of extending the PySpark SQL `DataFrame` class, which allows chaining custom
+ transformations with dot `.` notation
+ 
+## Contribute
+
+Contributions are welcome! 
+
+- [Submit an Issue](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr/issues/new)
+
+- [Submit a Pull Request](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-aws-emr/compare)
