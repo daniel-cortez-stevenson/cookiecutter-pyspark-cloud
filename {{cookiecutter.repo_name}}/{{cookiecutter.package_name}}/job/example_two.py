@@ -19,7 +19,7 @@ import pyspark.sql.types as T
 from pyspark.ml.feature import RegexTokenizer
 from pyspark.ml.pipeline import Pipeline
 
-from {{cookiecutter.package_name}} import SnowballStemmer
+from {{cookiecutter.package_name}}.common.text import SnowballStemmer
 
 
 logger = logging.getLogger(__name__)
