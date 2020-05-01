@@ -26,12 +26,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from pyspark.sql import SparkSession
-    spark = SparkSession \
-        .builder \
-        .appName(__name__) \
-        .master('local[*]') \
-        .enableHiveSupport() \
-        .getOrCreate()
+    spark = SparkSession.builder.getOrCreate()
 except ImportError:
     msg = 'Install pyspark to your Python environment to test locally.'
     logger.error(msg)
