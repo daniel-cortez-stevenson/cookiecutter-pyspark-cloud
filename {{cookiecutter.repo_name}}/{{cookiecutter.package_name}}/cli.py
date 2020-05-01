@@ -16,6 +16,7 @@ limitations under the License.
 """
 import logging
 from os.path import join
+import sys
 
 import boto3
 import click
@@ -65,7 +66,8 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
     """
     # Get Python code assets from S3
     distribution_prefix = join('s3://', bucket, prefix)
-    egg_key = join(distribution_prefix, '{{cookiecutter.package_name}}-' + __version__ + '-py3.6.egg')
+    python_major_version = sys.version[:3]
+    egg_key = join(distribution_prefix, '{{cookiecutter.package_name}}-' + __version__ + '-py' + python_major_version + '.egg')
     pyspark_entrypoint_key = join(distribution_prefix, 'pyspark_entrypoint.py')
 
     # Build the arguments to send to command-runner.jar
