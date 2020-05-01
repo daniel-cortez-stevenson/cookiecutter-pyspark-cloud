@@ -86,7 +86,7 @@ Parameters:
     Description: >-
       AWS EC2 Instance Type of the EMR Master node.
     Type: String
-    Default: m5.2xlarge
+    Default: m5.xlarge
     ConstraintDescription: >-
       Must be a valid AWS EMR EC2 Instance Type.
 
