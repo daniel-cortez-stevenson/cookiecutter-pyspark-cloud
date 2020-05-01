@@ -55,7 +55,7 @@ Submit job module PySpark code to AWS EMR as a Step:
 
 ```
 {{cookiecutter.package_name}} job \
-    -i *your-emr-cluster-id*
+    -i *your-emr-cluster-id* \
     -s ExampleOneStep \
     -b {{cookiecutter.s3_bucket}} \
     -p "dist/" \
@@ -69,7 +69,7 @@ Another example:
 
 ```
 {{cookiecutter.package_name}} job \
-    -i *your-emr-cluster-id*
+    -i *your-emr-cluster-id* \
     -s ExampleTwoStep \
     -b {{cookiecutter.s3_bucket}} \
     -p "dist/" \

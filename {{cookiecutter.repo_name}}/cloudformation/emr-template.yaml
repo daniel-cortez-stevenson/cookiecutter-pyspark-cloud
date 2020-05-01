@@ -343,7 +343,7 @@ Resources:
           HadoopJarStep:
             Jar: !Sub 's3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar'
             Args:
-              - !Sub 's3://${S3BucketName}/dist/emr/scripts/step/stepconfigure-conda+jupyterhub.sh'
+              - !Sub 's3://${S3BucketName}/dist/emr/scripts/step/configure-conda+jupyterhub.sh'
         - Name: ConfigureJupyterHubUsers
           ActionOnFailure: CONTINUE
           HadoopJarStep:

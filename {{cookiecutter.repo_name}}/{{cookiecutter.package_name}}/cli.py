@@ -64,7 +64,7 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
         pairs to the --job-name`main` function. Ex. "arg1=val1" "arg2=arg2" ...
     """
     # Get Python code assets from S3
-    distribution_prefix = join('s3://', bucket, prefix, 'dist')
+    distribution_prefix = join('s3://', bucket, prefix)
     egg_key = join(distribution_prefix, 'spotlight-' + __version__ + '-py3.6.egg')
     pyspark_entrypoint_key = join(distribution_prefix, 'pyspark_entrypoint.py')
 
