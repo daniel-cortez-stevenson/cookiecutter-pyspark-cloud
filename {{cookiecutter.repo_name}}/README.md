@@ -142,7 +142,7 @@ tl;dr
 
     - `spark` must be the first argument
     - reasonable to also insert `**kwargs` as the last argument
-    
+
     ```python
     def main(spark, arg1, arg2, ..., **kwargs):
         # Your PySpark code here!
@@ -153,9 +153,7 @@ tl;dr
 
 Use [`bump2version`](https://github.com/c4urself/bump2version) to create a new version commit and tag it:
 
-    ```
-    bumpversion major | minor | patch
-    git push --tags
-    ```
-
-    
+```
+bumpversion patch  # major | minor | patch
+git push --tags
+```
