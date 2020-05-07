@@ -34,7 +34,7 @@ Parameters:
       The name of the AWS S3 bucket, which will store logs, Jupyter notebooks,
       Python code assets, and bootstrap / startup step bash scripts.
     Type: String
-    Default: {{cookiecutter.s3_bucket}}
+    Default: '{{cookiecutter.s3_bucket}}'
     ConstraintDescription: >-
       Must be a valid S3 bucket name, which is globally unique.
 
