@@ -1,4 +1,4 @@
-# cookiecutter-pyspark-cloud ![logo](doc/img/logo.png =188x) 
+# cookiecutter-pyspark-cloud <img src="doc/img/logo.png" width=188/>
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
