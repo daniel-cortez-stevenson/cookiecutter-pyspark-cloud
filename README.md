@@ -9,10 +9,19 @@ Run PySpark code in the 'cloud' with Amazon Web Services (AWS) Elastic MapReduce
 
 ```
 pip install -U "cookiecutter>=1.7"
-cookiecutter https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud.git
-cd *your-repo_name*
+cookiecutter --no-input https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud.git
+cd pyspark-cloud
 make install
+pyspark_cloud
 ```
+
+Your console will look something like:
+
+![hello](doc/img/pyspark_cloud-console.png)
+
+## Infrastructure Overview
+
+![AWS Cloudformation Template Designer Export](doc/img/cloudformation-designer.png)
 
 ## Usage
 
@@ -79,15 +88,15 @@ make install-dev
 
 - Wrap Scala with Python: An example of wrapping Scala Spark API code with PySpark API code is provided with
  `SnowballStemmer`
- 
+
 - Extend the PySpark API: An example of extending the PySpark SQL `DataFrame` class, which allows chaining custom
  transformations with dot `.` notation
- 
+
 - Development Framework: Use [bump2version](https://github.com/c4urself/bump2version) to version your project.
- 
+
 ## Contribute
 
-Contributions are welcome! 
+Contributions are welcome!
 
 - [Submit an Issue](https://github.com/daniel-cortez-stevenson/cookiecutter-pyspark-cloud/issues/new)
 
