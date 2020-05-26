@@ -3,6 +3,17 @@
     "repo_name": "{{cookiecutter.project_name | slugify}}",
     "package_name": "{{cookiecutter.repo_name | slugify(separator='_')}}",
     "s3_bucket": "{{cookiecutter.repo_name | slugify }}-{{ random_ascii_string(8) | lower}}",
+    "aws_availability_zone": [
+        "us-east-1a",
+        "us-east-1b",
+        "us-east-1c",
+        "us-east-1d",
+        "us-east-1e",
+        "us-east-1f",
+        "eu-central-1a",
+        "eu-central-1b",
+        "eu-central-1c"
+    ],
     "_extensions": [
         "cookiecutter.extensions.RandomStringExtension",
         "cookiecutter.extensions.SlugifyExtension"

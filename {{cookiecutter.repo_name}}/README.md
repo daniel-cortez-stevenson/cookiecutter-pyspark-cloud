@@ -63,10 +63,11 @@ aws cloudformation create-stack \
     --stack-name "{{cookiecutter.project_name | slugify(separator='')}}-{{random_ascii_string(6) | lower}}" \
     --template-body file://./cloudformation/emr-template.yaml \
     --tags Key=Environment,Value=Test Key=Project,Value={{cookiecutter.project_name | slugify(separator='')}} \
+    --timeout-in-minutes 30 \
     --parameters \
         ParameterKey=BastionKeyName,ParameterValue=test-{{cookiecutter.repo_name}}-bastion \
         ParameterKey=EmrKeyName,ParameterValue=test-{{cookiecutter.repo_name}}-emr \
-    # for debugging the stack use `--disable-rollback`
+    # --disable-rollback  # uncomment this line for debugging the stack deployment
 ```
 
 #### Submit PySpark code as AWS EMR Steps using the `{{cookiecutter.package_name}}` CLI
