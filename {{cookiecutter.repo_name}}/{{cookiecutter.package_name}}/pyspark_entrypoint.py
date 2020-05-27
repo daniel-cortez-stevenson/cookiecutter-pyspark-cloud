@@ -16,25 +16,26 @@ limitations under the License.
 """
 import argparse
 import datetime
+import logging
 import importlib
 import os
 
-from {{cookiecutter.package_name}}.logger import logger
-
-
-logger = logger()
-
-
-try:
-    from pyspark.sql import SparkSession
-    spark = SparkSession.builder.getOrCreate()
-except ImportError:
-    msg = 'Install pyspark to your Python environment to test locally.'
-    logger.error(msg)
-    raise
+from {{ cookiecutter.package_name }}.common.logging import pyspark_logger
 
 
 def main():
+    logger = logging.getLogger(__name__)
+
+    logger.debug('looking for the SparkSession ...')
+    try:
+        from pyspark.sql import SparkSession
+        spark = SparkSession.builder.getOrCreate()
+        logger.info(f'Found SparkSession: {spark}')
+    except ImportError:
+        msg = 'Install pyspark to your Python environment to test locally.'
+        logger.error(msg)
+        raise
+
     parser = argparse.ArgumentParser(description='Run a PySpark job via spark-submit.')
     parser.add_argument('--job-name', type=str, required=True, dest='job_name',
                         help='The name of the job module you want to run. (ex: `--job-name example_one` will run main() in job.example_one module)')
@@ -57,7 +58,7 @@ def main():
     logger.info(f'Submitted job "{args.job_name}" with kwargs: {job_kwargs}')
 
     try:
-        job_module = importlib.import_module(f'{{cookiecutter.package_name}}.job.{args.job_name}')
+        job_module = importlib.import_module(f'{{ cookiecutter.package_name }}.job.{args.job_name}')
         logger.info(f'Imported {args.job_name} successfully.')
     except ImportError:
         logger.error('______________ Abrupt Exit ______________')
@@ -66,7 +67,8 @@ def main():
 
     start = datetime.datetime.now()
     try:
-        job_module.main(spark, **job_kwargs)
+        job_logger = pyspark_logger(spark.sparkContext)
+        job_module.main(spark=spark, logger=job_logger, **job_kwargs)
     except Exception:
         logger.error('______________ Abrupt Exit ______________')
         raise

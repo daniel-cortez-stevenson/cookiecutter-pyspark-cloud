@@ -17,14 +17,10 @@ import pyspark.sql.types as T
 from pyspark.ml.feature import RegexTokenizer
 from pyspark.ml.pipeline import Pipeline
 
-from {{cookiecutter.package_name}}.common.text import SnowballStemmer
-from {{cookiecutter.package_name}}.logger import logger
+from {{ cookiecutter.package_name }}.common.text import SnowballStemmer
 
 
-logger = logger()
-
-
-def main(spark, **kwargs):
+def main(spark, logger, **kwargs):
     logger.info('Creating a simple DataFrame ...')
     schema_names = ['id', 'german_text']
     fields = [T.StructField(field_name, T.StringType(), True) for field_name in schema_names]

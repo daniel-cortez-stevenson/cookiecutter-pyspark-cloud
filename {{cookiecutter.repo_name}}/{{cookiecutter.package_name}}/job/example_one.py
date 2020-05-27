@@ -13,14 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from {{cookiecutter.package_name}}.common.util import list_s3_keys
-from {{cookiecutter.package_name}}.logger import logger
+from {{ cookiecutter.package_name }}.common.util import list_s3_keys
 
 
-logger = logger()
-
-
-def main(spark, bucket, prefix, suffix, **kwargs):
+def main(spark, logger, bucket, prefix, suffix, **kwargs):
     """Example One Job of PySpark on AWS EMR."""
     keys = list_s3_keys(bucket=bucket, prefix=prefix, suffix=suffix)
     logger.info(f'Found keys! -> {keys}')

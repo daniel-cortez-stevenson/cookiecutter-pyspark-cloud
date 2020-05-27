@@ -20,11 +20,11 @@ import boto3
 import click
 import pyfiglet
 
-from {{cookiecutter.package_name}} import __version__
-from {{cookiecutter.package_name}}.logger import logger
+from {{ cookiecutter.package_name }} import __version__
+from {{ cookiecutter.package_name }}.logging import client_logger
 
 
-logger = logger()
+logger = client_logger()
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 ACTIONS_ON_FAILRE = ['TERMINATE_JOB_FLOW', 'CANCEL_AND_WAIT', 'CONTIUNUE']

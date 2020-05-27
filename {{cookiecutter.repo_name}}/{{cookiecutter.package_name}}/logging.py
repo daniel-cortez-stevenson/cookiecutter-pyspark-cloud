@@ -13,5 +13,5 @@ daiquiri.setup(level=logging.INFO, outputs=(
 ))
 
 
-def logger():
+def client_logger():
     return daiquiri.getLogger(__name__)
