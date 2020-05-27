@@ -21,7 +21,7 @@ Your console will look something like:
 
 ## Infrastructure Overview
 
-![AWS Cloudformation Template Designer Export](doc/img/cloudformation-designer.png)
+![AWS Cloudformation Template Designer Export](doc/img/emr-template.yaml.svg)
 
 ## Usage
 
