@@ -30,7 +30,6 @@ setup(
     license='Apache',
     packages=['{{ cookiecutter.package_name }}'],
     install_requires=[
-        'daiquiri',
         'findspark',
     ],
     setup_requires=[
@@ -59,6 +58,7 @@ setup(
             'awscli',
             'boto3',
             'click >=7.0.',
+            'daiquiri',
             'pyfiglet ==0.8.post1',
         ],
         'dev': [
