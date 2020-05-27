@@ -17,11 +17,12 @@ limitations under the License.
 import argparse
 import datetime
 import importlib
-import logging
 import os
 
+from {{cookiecutter.package_name}}.logger import logger
 
-logger = logging.getLogger(__name__)
+
+logger = logger()
 
 
 try:
@@ -41,12 +42,12 @@ def main():
                         help='Extra keyword-arguments to send to main() of the job module (ex: `--job-kwargs bat=baz foo=bar`')
     args = parser.parse_args()
 
-    logging.info(f'Called {__file__}:main with arguments:', args)
+    logger.info(f'Called {__file__}:main with arguments:', args)
 
     os.environ.update({
         'PYSPARK_JOB_ARGS': ' '.join(args.job_kwargs) if args.job_kwargs else ''
     })
-    logging.info(f'OS environment:\n{os.environ}')
+    logger.info(f'OS environment:\n{os.environ}')
 
     job_kwargs = dict()
     if args.job_kwargs:

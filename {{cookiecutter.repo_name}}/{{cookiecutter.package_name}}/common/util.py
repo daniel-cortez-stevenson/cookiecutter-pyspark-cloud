@@ -15,6 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import boto3
+import daiquiri
+
+
+logger = daiquiri.getLogger(__name__)
 
 
 def list_s3_keys(bucket, prefix, suffix, pagination_conf: dict = None):
@@ -43,6 +47,7 @@ def list_s3_keys(bucket, prefix, suffix, pagination_conf: dict = None):
             Delimiter='',
             PaginationConfig=pagination_conf,
         )
+        logger.debug(f'Response: {response}')
     except Exception:
         raise  # FIXME: Specify Errors and handle appropriately
 
@@ -57,4 +62,5 @@ def list_s3_keys(bucket, prefix, suffix, pagination_conf: dict = None):
                         keys.append(key)
                 except KeyError:
                     pass
+    logger.info(f'Found S3 keys: {keys}')
     return keys

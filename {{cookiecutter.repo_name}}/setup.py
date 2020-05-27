@@ -26,10 +26,11 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     author='Daniel Cortez Stevenson',
-    author_email='d.stevenson@reply.de',
+    author_email='daniel@jyde.io',
     license='Apache',
-    packages=['{{cookiecutter.package_name}}'],
+    packages=['{{ cookiecutter.package_name }}'],
     install_requires=[
+        'daiquiri',
         'findspark',
     ],
     setup_requires=[
@@ -50,7 +51,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            '{{cookiecutter.package_name}} = {{cookiecutter.package_name}}.cli:main',
+            '{{ cookiecutter.package_name }} = {{ cookiecutter.package_name }}.cli:main',
         ],
     },
     extras_require={

@@ -13,12 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
-
 from {{cookiecutter.package_name}}.common.util import list_s3_keys
+from {{cookiecutter.package_name}}.logger import logger
 
 
-logger = logging.getLogger(__name__)
+logger = logger()
 
 
 def main(spark, bucket, prefix, suffix, **kwargs):

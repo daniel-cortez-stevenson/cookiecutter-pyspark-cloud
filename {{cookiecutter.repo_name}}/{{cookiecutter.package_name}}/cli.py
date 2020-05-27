@@ -14,18 +14,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
 from os.path import join
-import sys
 
 import boto3
 import click
 import pyfiglet
 
 from {{cookiecutter.package_name}} import __version__
+from {{cookiecutter.package_name}}.logger import logger
 
 
-logger = logging.getLogger(__name__)
+logger = logger()
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 ACTIONS_ON_FAILRE = ['TERMINATE_JOB_FLOW', 'CANCEL_AND_WAIT', 'CONTIUNUE']
@@ -40,8 +39,8 @@ def main():
 def cli(ctx):
     if not ctx.invoked_subcommand:
         f = pyfiglet.Figlet(font='slant')
-        click.echo(f.renderText('{{cookiecutter.package_name}}'))
-        click.echo(f'v{__version__}')
+        logger.info(f'\n{f.renderText("pyspark_cloud")}\n')
+        logger.info(f'v{__version__}')
 
 
 @cli.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, **CONTEXT_SETTINGS),
@@ -80,7 +79,7 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
     if job_kwargs:
         spark_submit_cmd.extend(['--job-kwargs'] + list(job_kwargs))
     msg = f'Will execute the following spark-submit command on EMR Master:\n\t{spark_submit_cmd}\n\n'
-    click.echo(msg)
+    logger.info(msg)
 
     # Submit the EMR Step through the API
     client = boto3.client('emr')
@@ -97,7 +96,7 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
             },
         ],
     )
-    click.echo(response)
+    logger.info(response)
 
 
 @cli.group('list', context_settings=CONTEXT_SETTINGS, short_help='Get deployment info')
@@ -115,7 +114,7 @@ def list_emr(ctx):
             'STARTING', 'BOOTSTRAPPING', 'RUNNING', 'WAITING',
         ],
     )['Clusters']
-    click.echo(clusters)
+    logger.info(clusters)
 
 
 if __name__ == '__main__':
