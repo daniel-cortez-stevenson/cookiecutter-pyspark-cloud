@@ -20,12 +20,12 @@ import daiquiri
 from pythonjsonlogger import jsonlogger
 
 
-fmt = '%(asctime)s [%(process)d] %(color)s%(levelname)-8.8s %(name)s: %(message)s%(color_stop)s'
+stream_fmt = '%(asctime)s [%(process)d] %(color)s%(levelname)-8.8s %(name)s: %(message)s%(color_stop)s'
 json_fmt = '(asctime) (process) (levelname) (name) (message)'
 
 daiquiri.setup(level=logging.INFO, outputs=(
     daiquiri.output.Stream(
-        formatter=daiquiri.formatter.ColorFormatter(fmt),
+        formatter=daiquiri.formatter.ColorFormatter(stream_fmt),
     ),
     daiquiri.output.TimedRotatingFile(
         filename='{{ cookiecutter.package_name }}.log',
@@ -34,5 +34,5 @@ daiquiri.setup(level=logging.INFO, outputs=(
 ))
 
 
-def client_logger():
-    return daiquiri.getLogger(__name__)
+def client_logger(name=__name__):
+    return daiquiri.getLogger(name)
