@@ -60,6 +60,7 @@ setup(
             'click >=7.0.',
             'daiquiri',
             'pyfiglet ==0.8.post1',
+            'pythonjsonlogger',
         ],
         'dev': [
             'bump2version',
