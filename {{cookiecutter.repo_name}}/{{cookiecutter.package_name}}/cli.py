@@ -39,7 +39,7 @@ def main():
 def cli(ctx):
     if not ctx.invoked_subcommand:
         f = pyfiglet.Figlet(font='slant')
-        logger.info(f'\n{f.renderText("pyspark_cloud")}\n')
+        click.secho('\n' + f'{f.renderText("{{ cookiecutter.package_name }}")}', bold=True, bg='bright_magenta', fg='white')
         logger.info(f'v{__version__}')
 
 
