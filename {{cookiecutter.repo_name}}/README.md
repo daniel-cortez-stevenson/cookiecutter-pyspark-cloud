@@ -28,6 +28,12 @@ conda activate {{cookiecutter.repo_name}}
 make install-dev
 ```
 
+### Test the Python package
+
+```
+make test
+```
+
 ### AWS
 
 #### Store Data and Assets in S3

@@ -30,7 +30,7 @@ install-dev: clean-build update-install
 	$(PYTHON_INTERPRETER) -m pip install -U -e .[client,dev,spark,spark-node]
 
 test: clean-test
-	$(PYTHON_INTERPRETER) setup.py pytest
+	$(PYTHON_INTERPRETER) -m tox
 
 lint: lint-all
 lint-all: pylint yamllint

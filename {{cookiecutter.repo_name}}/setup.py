@@ -32,13 +32,6 @@ setup(
     install_requires=[
         'findspark',
     ],
-    setup_requires=[
-        'pytest-runner >=2.0,<3dev',
-    ],
-    tests_require=[
-        'pytest',
-        'pytest-spark',
-    ],
     include_package_data=True,
     package_data={
         '*': [
@@ -62,19 +55,12 @@ setup(
             'pyfiglet ==0.8.post1',
             'python-json-logger',
         ],
-        'dev': [
-            'bump2version',
-            'flake8',
-            'mypy',
-            'pyspark-stubs',
-            's3cmd',
-            'yamllint',
-        ],
         'spark': [
             'pyspark ==2.4.4',
         ],
         'spark-node': [
             'boto3',
+            'numpy',
         ],
     },
     zip_safe=True,

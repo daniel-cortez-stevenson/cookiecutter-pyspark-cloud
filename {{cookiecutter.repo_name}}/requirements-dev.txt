@@ -1,0 +1,12 @@
+autoflake
+black
+bump2version
+coverage
+flake8
+isort
+mypy
+pyspark-stubs
+s3cmd
+tox
+tox-gh-actions
+yamllint

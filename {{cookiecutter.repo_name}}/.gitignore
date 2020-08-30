@@ -11,13 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# Git will ignore these files & directories
-#
-# Secrets
-secret/
-*.secret
-
 # Mac OS
 *.DS_Store
 
@@ -45,7 +38,7 @@ __pycache__/
 
 # Unit test / coverage reports
 htmlcov/
-.coverage*
+.coverage
 coverage.*
 .cache
 .pytest_cache/

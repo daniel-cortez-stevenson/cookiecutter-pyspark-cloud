@@ -1,0 +1,51 @@
+name: 'Build, Test, & Deploy a CookieCutter Template for a Python Package'
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build_test_deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7"]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: Install CookieCutter
+        run: |
+          python -m pip install -U "$(cat requirements.txt | grep 'cookiecutter')"
+      - name: Render and Enter CookieCutter Template
+        run: |
+          python -m cookiecutter --no-input .
+      - name: Install Tox
+        run: |
+          cd pyspark-cloud
+          python -m pip install -U "$(cat requirements-dev.txt | grep '^tox$')"
+          python -m pip install -U "$(cat requirements-dev.txt | grep '^tox-gh-actions$')"
+      - name: Run Tests with Tox
+        run: |
+          cd pyspark-cloud
+          python -m tox
+      - name: Install Coverage
+        run: |
+          cd pyspark-cloud
+          python -m pip install -U "$(cat requirements-dev.txt | grep '^coverage$')"
+      - name: Make Coverage Reports
+        run: |
+          cd pyspark-cloud
+          python -m coverage combine
+          python -m coverage xml -i -o coverage/covreport-${{ matrix.python-version }}.xml
+      - name: Upload PyTest XML Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: pytest-results
+          path: pyspark-cloud/junit/test-results-*.xml
+        if:
+      - name: Upload Coverage XML Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-results
+          path: pyspark-cloud/coverage/covreport-*.xml
+        if: ${{ always() }}
