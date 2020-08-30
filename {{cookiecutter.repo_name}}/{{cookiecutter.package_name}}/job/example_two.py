@@ -17,29 +17,39 @@ import pyspark.sql.types as T
 from pyspark.ml.feature import RegexTokenizer
 from pyspark.ml.pipeline import Pipeline
 
-from {{ cookiecutter.package_name }}.common.text import SnowballStemmer
+# fmt: off
+from {{cookiecutter.package_name}}.common.text import SnowballStemmer
+# fmt: on
 
 
 def main(spark, logger, **kwargs):
-    logger.info('Creating a simple DataFrame ...')
-    schema_names = ['id', 'german_text']
-    fields = [T.StructField(field_name, T.StringType(), True) for field_name in schema_names]
+    logger.info("Creating a simple DataFrame ...")
+    schema_names = ["id", "german_text"]
+    fields = [
+        T.StructField(field_name, T.StringType(), True) for field_name in schema_names
+    ]
     schema = T.StructType(fields)
     data = [
-        ('abc', 'Hallo Herr Mustermann'),
-        ('xyz', 'Deutsch ist das Ding!'),
+        ("abc", "Hallo Herr Mustermann"),
+        ("xyz", "Deutsch ist das Ding!"),
     ]
     df = spark.createDataFrame(data, schema)
     df.show()
 
-    logger.info('Building the ML pipeline ...')
-    tokenizer = RegexTokenizer(inputCol='german_text', outputCol='tokens', pattern='\\s+')
-    stemmer = SnowballStemmer(inputCol='tokens', outputCol='stemmed_tokens', language='German')
-    stemming_pipeline = Pipeline(stages=[
-        tokenizer,
-        stemmer,
-    ])
+    logger.info("Building the ML pipeline ...")
+    tokenizer = RegexTokenizer(
+        inputCol="german_text", outputCol="tokens", pattern="\\s+"
+    )
+    stemmer = SnowballStemmer(
+        inputCol="tokens", outputCol="stemmed_tokens", language="German"
+    )
+    stemming_pipeline = Pipeline(
+        stages=[
+            tokenizer,
+            stemmer,
+        ]
+    )
 
-    logger.info('Running the stemming ML pipeline ...')
+    logger.info("Running the stemming ML pipeline ...")
     stemmed_df = stemming_pipeline.fit(df).transform(df)
     stemmed_df.show()

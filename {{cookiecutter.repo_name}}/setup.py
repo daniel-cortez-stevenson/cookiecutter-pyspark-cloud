@@ -15,52 +15,51 @@ limitations under the License.
 """
 from setuptools import setup
 
-
 setup(
-    name='{{cookiecutter.package_name}}',
-    version='0.0.1',
-    description='A PySpark Cloud project, generated from cookiecutter-pyspark-cloud.',
+    name="{{cookiecutter.package_name}}",
+    version="0.0.1",
+    description="A PySpark Cloud project, generated from cookiecutter-pyspark-cloud.",
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3.6',
+        "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.6",
     ],
-    author='Daniel Cortez Stevenson',
-    author_email='daniel@jyde.io',
-    license='Apache',
-    packages=['{{ cookiecutter.package_name }}'],
+    author="Daniel Cortez Stevenson",
+    author_email="daniel@jyde.io",
+    license="Apache",
+    packages=["{{ cookiecutter.package_name }}"],
     install_requires=[
-        'findspark',
+        "findspark",
     ],
     include_package_data=True,
     package_data={
-        '*': [
-            '*.csv',
-            '*.yml',
-            '*.yaml',
-            '*.sh',
+        "*": [
+            "*.csv",
+            "*.yml",
+            "*.yaml",
+            "*.sh",
         ],
     },
     entry_points={
-        'console_scripts': [
-            '{{ cookiecutter.package_name }} = {{ cookiecutter.package_name }}.cli:main',
+        "console_scripts": [
+            "{{ cookiecutter.package_name }} = {{ cookiecutter.package_name }}.cli:main",
         ],
     },
     extras_require={
-        'client': [
-            'awscli',
-            'boto3',
-            'click >=7.0.',
-            'daiquiri',
-            'pyfiglet ==0.8.post1',
-            'python-json-logger',
+        "client": [
+            "awscli",
+            "boto3",
+            "click >=7.0.",
+            "daiquiri",
+            "pyfiglet ==0.8.post1",
+            "python-json-logger",
         ],
-        'spark': [
-            'pyspark ==2.4.4',
+        "spark": [
+            "pyspark ==2.4.4",
         ],
-        'spark-node': [
-            'boto3',
-            'numpy',
+        "spark-node": [
+            "boto3",
+            "numpy",
         ],
     },
     zip_safe=True,

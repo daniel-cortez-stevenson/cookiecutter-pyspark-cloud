@@ -18,14 +18,12 @@ import logging
 
 import boto3
 
-
 logger = logging.getLogger(__name__)
 
 
-def list_s3_keys(bucket: str,
-                 prefix: str,
-                 suffix: str,
-                 pagination_conf: dict = None) -> 'List[str]':
+def list_s3_keys(
+    bucket: str, prefix: str, suffix: str, pagination_conf: dict = None
+) -> "List[str]":
     """List AWS S3 keys efficiently so PySpark does not have to do an expensive
     recursive list operation.
 
@@ -40,31 +38,31 @@ def list_s3_keys(bucket: str,
     Returns:
         List[str]. S3 keys in bucket with prefix and suffix.
     """
-    s3_list_paginator = boto3.client('s3').get_paginator('list_objects_v2')
+    s3_list_paginator = boto3.client("s3").get_paginator("list_objects_v2")
 
-    pagination_conf = pagination_conf or {'PageSize': None, 'MaxItems': None}
+    pagination_conf = pagination_conf or {"PageSize": None, "MaxItems": None}
 
     try:
         response = s3_list_paginator.paginate(
             Bucket=bucket,
             Prefix=prefix,
-            Delimiter='',
+            Delimiter="",
             PaginationConfig=pagination_conf,
         )
-        logger.debug(f'Response: {response}')
+        logger.debug(f"Response: {response}")
     except Exception:
         raise  # FIXME: Specify Errors and handle appropriately
 
     keys = []
 
     for page in response:
-        if 'Contents' in page:
-            for content in page['Contents']:
+        if "Contents" in page:
+            for content in page["Contents"]:
                 try:
-                    key = content['Key']
+                    key = content["Key"]
                     if key and key.endswith(suffix):
                         keys.append(key)
                 except KeyError:
                     pass
-    logger.info(f'Found S3 keys: {keys}')
+    logger.info(f"Found S3 keys: {keys}")
     return keys

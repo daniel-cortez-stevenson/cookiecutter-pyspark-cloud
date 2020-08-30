@@ -20,14 +20,14 @@ import boto3
 import click
 import pyfiglet
 
-from {{ cookiecutter.package_name }} import __version__
-from {{ cookiecutter.package_name }}.logging import client_logger
-
-
+# fmt: off
+from {{cookiecutter.package_name}} import __version__
+from {{cookiecutter.package_name}}.logging import client_logger
+# fmt: on
 logger = client_logger()
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-ACTIONS_ON_FAILRE = ['TERMINATE_JOB_FLOW', 'CANCEL_AND_WAIT', 'CONTIUNUE']
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+ACTIONS_ON_FAILRE = ["TERMINATE_JOB_FLOW", "CANCEL_AND_WAIT", "CONTIUNUE"]
 
 
 def main():
@@ -38,24 +38,69 @@ def main():
 @click.pass_context
 def cli(ctx):
     if not ctx.invoked_subcommand:
-        f = pyfiglet.Figlet(font='slant')
-        click.secho('\n' + f'{f.renderText("{{ cookiecutter.package_name }}")}', bold=True, bg='bright_magenta', fg='white')
-        logger.info(f'v{__version__}')
+        f = pyfiglet.Figlet(font="slant")
+        click.secho(
+            "\n" + f'{f.renderText("{{ cookiecutter.package_name }}")}',
+            bold=True,
+            bg="bright_magenta",
+            fg="white",
+        )
+        logger.info(f"v{__version__}")
 
 
-@cli.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True, **CONTEXT_SETTINGS),
-             short_help='Submit PySpark code as an EMR Step.')
-@click.option('-i', '--cluster-id', required=True, help='EMR Cluster ID - also called Job Flow ID.')
-@click.option('-s', '--step-name', required=True, help='Give your EMR Step a descriptive name.')
-@click.option('-b', '--bucket', required=True, help='S3 bucket that contians the egg distribution.')
-@click.option('-p', '--prefix', required=True, help='S3 prefix that contains the egg distribution.')
-@click.option('-P', '--packages', required=False, help='Spark package dependencies of the job.')
-@click.option('-A', '--action-on-failure', default='TERMINATE_JOB_FLOW', type=click.Choice(ACTIONS_ON_FAILRE),
-              help='Keyword specifying EMR behavior if the Step fails.')
-@click.option('-j', '--job-name', required=True, help='The name of the job module to run.')
-@click.argument('job-kwargs', nargs=-1)
+@cli.command(
+    context_settings=dict(
+        ignore_unknown_options=True, allow_extra_args=True, **CONTEXT_SETTINGS
+    ),
+    short_help="Submit PySpark code as an EMR Step.",
+)
+@click.option(
+    "-i",
+    "--cluster-id",
+    required=True,
+    help="EMR Cluster ID - also called Job Flow ID.",
+)
+@click.option(
+    "-s", "--step-name", required=True, help="Give your EMR Step a descriptive name."
+)
+@click.option(
+    "-b",
+    "--bucket",
+    required=True,
+    help="S3 bucket that contians the egg distribution.",
+)
+@click.option(
+    "-p",
+    "--prefix",
+    required=True,
+    help="S3 prefix that contains the egg distribution.",
+)
+@click.option(
+    "-P", "--packages", required=False, help="Spark package dependencies of the job."
+)
+@click.option(
+    "-A",
+    "--action-on-failure",
+    default="TERMINATE_JOB_FLOW",
+    type=click.Choice(ACTIONS_ON_FAILRE),
+    help="Keyword specifying EMR behavior if the Step fails.",
+)
+@click.option(
+    "-j", "--job-name", required=True, help="The name of the job module to run."
+)
+@click.argument("job-kwargs", nargs=-1)
 @click.pass_context
-def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure, job_name, job_kwargs):
+def job(
+    ctx,
+    cluster_id,
+    step_name,
+    bucket,
+    prefix,
+    packages,
+    action_on_failure,
+    job_name,
+    job_kwargs,
+):
     """Submit a PySpark job via the AWS EMR Step API.
 
     [ARGS]
@@ -64,34 +109,41 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
         pairs to the --job-name`main` function. Ex. "arg1=val1" "arg2=arg2" ...
     """
     # Get Python code assets from S3
-    distribution_prefix = join('s3://', bucket, prefix)
+    distribution_prefix = join("s3://", bucket, prefix)
     python_major_version = sys.version[:3]
-    egg_key = join(distribution_prefix, '{{cookiecutter.package_name}}-' + __version__ + '-py' + python_major_version + '.egg')
-    pyspark_entrypoint_key = join(distribution_prefix, 'pyspark_entrypoint.py')
+    egg_key = join(
+        distribution_prefix,
+        "{{cookiecutter.package_name}}-"
+        + __version__
+        + "-py"
+        + python_major_version
+        + ".egg",
+    )
+    pyspark_entrypoint_key = join(distribution_prefix, "pyspark_entrypoint.py")
 
     # Build the arguments to send to command-runner.jar
-    spark_submit_cmd = ['spark-submit']
+    spark_submit_cmd = ["spark-submit"]
     if packages:
-        spark_submit_cmd.extend(['--packages', packages])
-    spark_submit_cmd.extend(['--py-files', egg_key])
+        spark_submit_cmd.extend(["--packages", packages])
+    spark_submit_cmd.extend(["--py-files", egg_key])
     spark_submit_cmd.append(pyspark_entrypoint_key)
-    spark_submit_cmd.extend(['--job-name', job_name])
+    spark_submit_cmd.extend(["--job-name", job_name])
     if job_kwargs:
-        spark_submit_cmd.extend(['--job-kwargs'] + list(job_kwargs))
-    msg = f'Will execute the following spark-submit command on EMR Master:\n\t{spark_submit_cmd}\n\n'
+        spark_submit_cmd.extend(["--job-kwargs"] + list(job_kwargs))
+    msg = f"Will execute the following spark-submit command on EMR Master:\n\t{spark_submit_cmd}\n\n"
     logger.info(msg)
 
     # Submit the EMR Step through the API
-    client = boto3.client('emr')
+    client = boto3.client("emr")
     response = client.add_job_flow_steps(
         JobFlowId=cluster_id,
         Steps=[
             {
-                'Name': step_name,
-                'ActionOnFailure': action_on_failure,
-                'HadoopJarStep': {
-                    'Jar': 'command-runner.jar',
-                    'Args': spark_submit_cmd,
+                "Name": step_name,
+                "ActionOnFailure": action_on_failure,
+                "HadoopJarStep": {
+                    "Jar": "command-runner.jar",
+                    "Args": spark_submit_cmd,
                 },
             },
         ],
@@ -99,23 +151,30 @@ def job(ctx, cluster_id, step_name, bucket, prefix, packages, action_on_failure,
     logger.info(response)
 
 
-@cli.group('list', context_settings=CONTEXT_SETTINGS, short_help='Get deployment info')
+@cli.group("list", context_settings=CONTEXT_SETTINGS, short_help="Get deployment info")
 @click.pass_context
 def list_(ctx):
     pass
 
 
-@list_.command('emr', context_settings=CONTEXT_SETTINGS, short_help='List available AWS EMR cluster IDs')
+@list_.command(
+    "emr",
+    context_settings=CONTEXT_SETTINGS,
+    short_help="List available AWS EMR cluster IDs",
+)
 @click.pass_context
 def list_emr(ctx):
-    emr = boto3.client('emr')
+    emr = boto3.client("emr")
     clusters = emr.list_clusters(
         ClusterStates=[
-            'STARTING', 'BOOTSTRAPPING', 'RUNNING', 'WAITING',
+            "STARTING",
+            "BOOTSTRAPPING",
+            "RUNNING",
+            "WAITING",
         ],
-    )['Clusters']
+    )["Clusters"]
     logger.info(clusters)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

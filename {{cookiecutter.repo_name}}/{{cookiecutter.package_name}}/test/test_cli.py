@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from click.testing import CliRunner
-from {{ cookiecutter.package_name }}.cli import cli
+
+# fmt: off
+from {{cookiecutter.package_name}}.cli import cli
+# fmt: on
 
 
 def test_cli_exit_0():

@@ -1,36 +1,36 @@
-# {{cookiecutter.repo_name}}
+# {{ cookiecutter.repo_name }}
 
 A 'starter-kit' for PySpark in the cloud :cloud: - from infrastructure to spark-submit call.
 
 ## Quickstart
 
-```
-conda create -n {{cookiecutter.repo_name}} -y "python=3.6"
+```bash
+conda create -n {{cookiecutter.repo_name}} -y "python=3.7"
 conda activate {{cookiecutter.repo_name}}
 
 make install
 
-{{cookiecutter.package_name}}
+{{ cookiecutter.package_name }}
 ```
 
 ## Usage
 
-### Install a Python 3.6 Environment
+### Install a Python 3.{6,7} Environment
 
-```
-conda create -n {{cookiecutter.repo_name}} -y "python=3.6"
-conda activate {{cookiecutter.repo_name}}
+```bash
+conda create -n {{ cookiecutter.repo_name }} -y "python=3.7"
+conda activate {{ cookiecutter.repo_name }}
 ```
 
-### Install {{cookiecutter.package_name}} for Development
+### Install {{ cookiecutter.package_name }} for Development
 
-```
+```bash
 make install-dev
 ```
 
 ### Test the Python package
 
-```
+```bash
 make test
 ```
 
@@ -38,8 +38,8 @@ make test
 
 #### Store Data and Assets in S3
 
-```
-aws s3 mb s3://{{cookiecutter.s3_bucket}}
+```bash
+aws s3 mb s3://{{ cookiecutter.s3_bucket }}
 ```
 
 #### Deploy Infrastrucutre as Code with AWS Cloudformation
@@ -48,7 +48,7 @@ Distribute code:
 
 *make cluster bootstrap & EMR Step API bash scripts, PySpark code available via S3*
 
-```
+```bash
 make s3dist
 ```
 
@@ -58,59 +58,59 @@ Make Keys:
 
 Example Key Pair Names:
 
-- test-{{cookiecutter.repo_name}}-bastion
+- test-{{ cookiecutter.repo_name }}-bastion
 
-- test-{{cookiecutter.repo_name}}-emr
+- test-{{ cookiecutter.repo_name }}-emr
 
 Deploy infrastructure:
 
-```
+```bash
 aws cloudformation create-stack \
-    --stack-name "{{cookiecutter.project_name | slugify(separator='')}}-{{random_ascii_string(6) | lower}}" \
+    --stack-name "{{ cookiecutter.project_name | slugify(separator='') }}-{{ random_ascii_string(6) | lower }}" \
     --template-body file://./cloudformation/emr-template.yaml \
-    --tags Key=Environment,Value=Test Key=Project,Value={{cookiecutter.project_name | slugify(separator='')}} \
+    --tags Key=Environment,Value=Test Key=Project,Value={{ cookiecutter.project_name | slugify(separator='') }} \
     --timeout-in-minutes 30 \
     --parameters \
-        ParameterKey=BastionKeyName,ParameterValue=test-{{cookiecutter.repo_name}}-bastion \
-        ParameterKey=EmrKeyName,ParameterValue=test-{{cookiecutter.repo_name}}-emr \
+        ParameterKey=BastionKeyName,ParameterValue=test-{{ cookiecutter.repo_name }}-bastion \
+        ParameterKey=EmrKeyName,ParameterValue=test-{{ cookiecutter.repo_name }}-emr \
     # --disable-rollback  # uncomment this line for debugging the stack deployment
 ```
 
-#### Submit PySpark code as AWS EMR Steps using the `{{cookiecutter.package_name}}` CLI
+#### Submit PySpark code as AWS EMR Steps using the `{{ cookiecutter.package_name }}` CLI
 
 Get help:
 
-```
-{{cookiecutter.package_name}} --help
+```bash
+{{ cookiecutter.package_name }} --help
 ```
 
 List EMR Cluster IDs :
 
-```
-{{cookiecutter.package_name}} list emr
+```bash
+{{ cookiecutter.package_name }} list emr
 ```
 
 Submit job module PySpark code to AWS EMR as a Step:
 
-```
-{{cookiecutter.package_name}} job \
+```bash
+{{ cookiecutter.package_name }} job \
     -i *your-emr-cluster-id* \
     -s ExampleOneStep \
-    -b {{cookiecutter.s3_bucket}} \
+    -b {{ cookiecutter.s3_bucket }} \
     -p "dist/" \
     -j example_one \
-    "bucket={{cookiecutter.s3_bucket}}" \
+    "bucket={{ cookiecutter.s3_bucket }}" \
     "prefix=dist/" \
     "suffix=.py"
 ```
 
 Another example:
 
-```
-{{cookiecutter.package_name}} job \
+```bash
+{{ cookiecutter.package_name }} job \
     -i *your-emr-cluster-id* \
     -s ExampleTwoStep \
-    -b {{cookiecutter.s3_bucket}} \
+    -b {{ cookiecutter.s3_bucket }} \
     -p "dist/" \
     -P "com.github.master:spark-stemming_2.10:0.2.1" \
     -j example_two
@@ -131,9 +131,11 @@ tl;dr
 
 2. Start port-forwarding from bash:
 
-    ```
-    ssh -i /path/to/your/bastion/keyfile.pem -ND 8157 ec2-user@*your-bastion-dns*
-    ```
+```bash
+ssh -i /path/to/your/bastion/keyfile.pem \
+    -ND 8157 \
+    ec2-user@*your-bastion-dns*
+```
 
 3. Access JupterHub at port `9443` of your Master Public DNS Name (exported from Cloudformation Template)
 
@@ -143,24 +145,34 @@ tl;dr
 
 ### How to add a new `job`
 
-1. Add a *.py file in the {{cookiecutter.package_name}}/job/ [`job` directory]({{cookiecutter.package_name}}/job/).
+1. Add a *.py file in the {{ cookiecutter.package_name }}/job/ [`job` directory]({{ cookiecutter.package_name }}/job/).
 
 2. Add a function signature for the job, like so:
 
     - `spark` must be the first argument
     - reasonable to also insert `**kwargs` as the last argument
 
-    ```python
-    def main(spark, arg1, arg2, ..., **kwargs):
-        # Your PySpark code here!
-        return None
-    ```
+```python
+def main(spark, arg1, arg2, ..., **kwargs):
+    # Your PySpark code here!
+    return None
+```
 
-### Tagging & Versioning
+### Contributing
+
+#### Autoformatters Available
+
+```bash
+autoflake --in-place --remove-unused-variables --remove-all-unused-imports --expand-star-imports --recursive .
+black -t py36 -t py37 .
+isort -l 88 --py 36 --py 37 -m 3 --tc .
+```
+
+#### Tagging a Release
 
 Use [`bump2version`](https://github.com/c4urself/bump2version) to create a new version commit and tag it:
 
-```
+```bash
 bumpversion patch  # major | minor | patch
 git push --tags
 ```

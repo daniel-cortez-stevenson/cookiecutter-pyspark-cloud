@@ -28,4 +28,6 @@ def transform(self, f, **kwargs):
 
 
 DataFrame.transform = transform
-DataFrame.transform.__doc__ = """Transform extension applied to `pyspark.sql.DataFrame`"""
+DataFrame.transform.__doc__ = (
+    """Transform extension applied to `pyspark.sql.DataFrame`"""
+)

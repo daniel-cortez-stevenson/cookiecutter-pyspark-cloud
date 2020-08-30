@@ -9,4 +9,3 @@ pyspark-stubs
 s3cmd
 tox
 tox-gh-actions
-yamllint
